@@ -48,6 +48,7 @@ class App extends Component<any, State> {
   }
 
   handleChangeMessage: Function;
+
   handleChangeMessage() {
     const changedState = randamState();
     this.setState({
@@ -57,12 +58,13 @@ class App extends Component<any, State> {
   }
 
   render() {
+    const { message, role } = this.state;
     return (
       <div className="app">
         <h1 className="app__text">Keid&#039;s Boilerplate of React</h1>
         <Hello
-          message={this.state.message}
-          role={this.state.role}
+          message={message}
+          role={role}
           onChangeMessage={this.handleChangeMessage}
         />
       </div>

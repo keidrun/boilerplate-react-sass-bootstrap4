@@ -4,11 +4,17 @@
     "es6": true
   },
   "parser": "babel-eslint",
-  "extends": ["airbnb", "plugin:flowtype/recommended"],
-  "plugins": ["flowtype"],
+  "extends": [
+    "airbnb",
+    "plugin:flowtype/recommended"
+  ],
+  "plugins": [
+    "flowtype"
+  ],
   "rules": {
     "flowtype/define-flow-type": "warn",
-    "flowtype/use-flow-type": "warn"
+    "flowtype/use-flow-type": "warn",
+    "no-unused-vars": "off"
   },
   "settings": {
     "flowtype": {

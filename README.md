@@ -5,7 +5,7 @@ Boilerplate of React and Bootstrap4 (SASS style) with Webpack.
 ## Description
 
 This boilerplate provides an automatic web development environment with
-`Webpack2` to develop `React(>=16)` and `Bootstrap4` (SASS style).
+`Webpack4` to develop `React(>=16)` and `Bootstrap4` (SASS style).
 
 ## Automatic Settings
 

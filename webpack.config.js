@@ -2,6 +2,8 @@ const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const ManifestPlugin = require('webpack-manifest-plugin');
+const HashOutput = require('webpack-plugin-hash-output');
 
 const PATH = {
   INDEX: {
@@ -11,16 +13,25 @@ const PATH = {
   },
   DIST: path.join(__dirname, 'public'),
 };
-const VENDOR_LIBS = ['react', 'react-dom'];
 
-module.exports = {
+const config = {
   entry: {
     bundle: [PATH.INDEX.JS, PATH.INDEX.CSS, PATH.INDEX.HTML],
-    vendor: VENDOR_LIBS,
   },
   output: {
     path: PATH.DIST,
     filename: '[name].[hash].js',
+  },
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          test: /react|react-dom|bootstrap|jquery|popper.js|tether/,
+          name: 'vendor',
+          chunks: 'all',
+        },
+      },
+    },
   },
   module: {
     rules: [
@@ -67,11 +78,11 @@ module.exports = {
     extensions: ['.js', '.jsx'],
   },
   plugins: [
-    new webpack.optimize.CommonsChunkPlugin({
-      names: ['vendor', 'manifest'],
-    }),
     new HtmlWebpackPlugin({
       template: PATH.INDEX.HTML,
+    }),
+    new ManifestPlugin({
+      fileName: 'manifest.json',
     }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
@@ -82,20 +93,38 @@ module.exports = {
       'window.jQuery': 'jquery',
       Popper: ['popper.js', 'default'],
     }),
-    new ExtractTextPlugin('bundle.[hash].css'),
-    new webpack.HotModuleReplacementPlugin(),
   ],
-  devtool: 'source-map',
-  devServer: {
-    hot: true,
-    contentBase: PATH.DIST,
-    port: 8080,
-    inline: true,
-    historyApiFallback: true,
-    stats: {
-      version: false,
-      hash: false,
-      chunkModules: false,
-    },
-  },
+};
+
+module.exports = (env, argv) => {
+  if (argv.mode === 'production') {
+    config.output.filename = '[name].[chunkhash].js';
+    config.plugins.push(new ExtractTextPlugin('bundle.[chunkhash].css'));
+    config.plugins.push(
+      new HashOutput({
+        validateOutput: true,
+        validateOutputRegex: /^public\/.*\.{js|css}$/,
+      }),
+    );
+  } else {
+    // 'development'
+    config.output.filename = '[name].[hash].js';
+    config.plugins.push(new ExtractTextPlugin('bundle.[hash].css'));
+    config.plugins.push(new webpack.HotModuleReplacementPlugin());
+    config.devtool = 'source-map';
+    config.devServer = {
+      hot: true,
+      contentBase: PATH.DIST,
+      port: 8080,
+      inline: true,
+      historyApiFallback: true,
+      stats: {
+        version: false,
+        hash: false,
+        chunkModules: false,
+      },
+    };
+  }
+
+  return config;
 };
